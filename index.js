@@ -16,35 +16,42 @@ async function run() {
         console.log(`Getting teams for ${login} in org ${organization}. Will check if belongs to ${team}`)
 
         //TODO: add pagination
-        const query = `query  {
-            organization(login: "${organization}") {      
-            teams (first:100,userLogins: ["${login}"]) { 
+        const query = `query($cursor: String, $org: String!, $userLogins: [String!])  {
+            organization(login: $org) {      
+              teams (first:100, userLogins: $userLogins, after: $cursor) { 
                 totalCount            
-                nodes {
-                name
+                  nodes {
+                    name
                 }
                 pageInfo {
-                    hasNextPage
-                    startCursor
-                    endCursor
+                  hasNextPage
+                  endCursor
                 }        
-            }
+              }
             }
         }`
 
-        console.log(`DBG QUERY ${query}`)
+        // TODO: optimize to avoid 2 loops
+        let cursor = null
+        let org
+        let teamResult = []
+        do {
+            org = await api.graphql(query, {
+                "cursor": cursor,
+                "org" : organization,
+                "userLogins" : [login]
+            })
+            
+            teamResult = teamResult.concat(org.organization.teams.nodes)
+            cursor = org.organization.teams.pageInfo.endCursor   
 
-        let org = await api.graphql(query)
-
-        console.log(`DBG ${JSON.stringify(org)}`)
+        } while (org.organization.teams.pageInfo.hasNextPage)
 
         let teams = []
         let isTeamMember = false
 
-        for (let x = 0; x < org.organization.teams.nodes.length; x++) {
-            const node = org.organization.teams.nodes[x]
-
-            console.log("DBG look ${node.name}")
+        for (let x = 0; x < teamResult.length; x++) {
+            const node = teamResult[x]
 
             teams.push(node.name)
 
@@ -55,7 +62,7 @@ async function run() {
             }
         }
 
-        console.log(`DBG teams ${teams.join(",")}`)        
+        console.log(`DBG teams ${teams.join(",")}`)
         console.log(`DBG isTeamMember ${isTeamMember}`)
 
         core.setOutput("teams", teams)
