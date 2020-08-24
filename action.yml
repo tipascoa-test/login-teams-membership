@@ -8,12 +8,8 @@ inputs:
   login:
     description: 'User login to get teams or check team membership'
     required: true
-  delimiter:
-    description: 'The team delimiter for teams list (default |)'
-    required: false    
-    default: '|'
   team:
-    description: 'If you specify a team name it will output if the user is  member'
+    description: 'If you specify a team name it will output if the user is a member of that team'
     required: false
     default: ''
   GITHUB_TOKEN:
