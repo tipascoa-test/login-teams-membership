@@ -15,7 +15,6 @@ async function run() {
 
         console.log(`Getting teams for ${login} in org ${organization}. Will check if belongs to ${team}`)
 
-        //TODO: add pagination
         const query = `query($cursor: String, $org: String!, $userLogins: [String!])  {
             organization(login: $org) {      
               teams (first:100, userLogins: $userLogins, after: $cursor) { 
