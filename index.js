@@ -10,15 +10,14 @@ async function run() {
         const api = github.getOctokit(core.getInput("GITHUB_TOKEN", { required: true }), {})
 
         const organization = core.getInput("organization") || context.repo.owner
-        const login = core.getInput("login")
+        const username = core.getInput("username")
         const team = core.getInput("team")
 
-        console.log(`Getting teams for ${login} in org ${organization}. Will check if belongs to ${team}`)
+        console.log(`Getting teams for ${username} in org ${organization}. Will check if belongs to ${team}`)
 
         const query = `query($cursor: String, $org: String!, $userLogins: [String!])  {
             organization(login: $org) {      
-              teams (first:100, userLogins: $userLogins, after: $cursor) { 
-                totalCount            
+              teams (first:1, userLogins: $userLogins, after: $cursor) { 
                   nodes {
                     name
                 }
@@ -30,36 +29,29 @@ async function run() {
             }
         }`
 
-        // TODO: optimize to avoid 2 loops
-        let cursor = null
         let org
-        let teamResult = []
+        let teams = []
+        let cursor = null
+        
+        // Paginate
         do {
             org = await api.graphql(query, {
                 "cursor": cursor,
-                "org" : organization,
-                "userLogins" : [login]
+                "org": organization,
+                "userLogins": [username]
             })
+
+            teams = teams.concat(org.organization.teams.nodes.map((val) => {
+                return val.name
+            }))
             
-            teamResult = teamResult.concat(org.organization.teams.nodes)
             cursor = org.organization.teams.pageInfo.endCursor   
 
         } while (org.organization.teams.pageInfo.hasNextPage)
 
-        let teams = []
-        let isTeamMember = false
-
-        for (let x = 0; x < teamResult.length; x++) {
-            const node = teamResult[x]
-
-            teams.push(node.name)
-
-            if (team) {
-                if (team.toLowerCase() === node.name.toLowerCase()) {
-                    isTeamMember = true
-                }
-            }
-        }
+        let isTeamMember = teams.some((teamName) => {
+            return team.toLowerCase() === teamName.toLowerCase()
+        })
 
         console.log(`DBG teams ${teams.join(",")}`)
         console.log(`DBG isTeamMember ${isTeamMember}`)

@@ -5,11 +5,11 @@ inputs:
     description: 'Organization name (default is repo owner)'
     required: false
     default:  ${{ github.repository_owner }}
-  login:
-    description: 'User login to get teams or check team membership'
+  username:
+    description: 'Username to get teams or check team membership'
     required: true
   team:
-    description: 'If you specify a team name it will output if the user is a member of that team'
+    description: 'If you specify a team name it will output if the user is a member of that team (case insensitive)'
     required: false
     default: ''
   GITHUB_TOKEN:
