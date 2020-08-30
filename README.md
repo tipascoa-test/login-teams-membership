@@ -1,6 +1,6 @@
 # get-user-teams-membership
 
-Action to get the list of teams a user belongs in a given organization.
+[GitHub Action](https://github.com/features/actions) to get the list of teams a user belongs in a given organization.
 It can also be optionally used to check if the user belongs to a given team
 
 It emits two outputs which are available via the `steps` [output context](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#steps-context)
@@ -18,15 +18,21 @@ See [action.yml](action.yml)
     username: # The github username for which we want to fetch teams membership in a given organization.
     organization: # optional. Default value ${{ github.repository_owner }} Organization to get membership from.
     team: # optional. Check if user belong to this team. If you just want to check membership of a particular team. (only team name, don't include orgname)
-    GITHUB_TOKEN: # Personal access token used to query github (Requires scopes: TODO)
+    GITHUB_TOKEN: # Personal access token used to query github (Requires scope: `read:org`)
 ```
 
-# Scenarios
+## Requirements
+
+In order to use this action you need to use a [personal access token] 
+with `read:org` [scope](https://docs.github.com/en/developers/apps/scopes-for-oauth-apps#available-scopes) 
+(so the builtin in [GITHUB_TOKEN](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) is not enough)
+
+## Scenarios
 
 - [Checks if user belongs to one team or another](#Checks-if-user-belongs-to-one-of-two-teams)
 - [Checks if a user belongs to a given team](#Checks-if-user-belongs-to-a-given-team)
 
-## Checks if user belongs to one of two teams
+### Checks if user belongs to one of two teams
 
 Checks if the user who triggered the worfklow (actor) belongs to one of two teams that define `A team` 
 and if not adds a label to the pull request to signal it's an external contribution.
@@ -42,7 +48,7 @@ and if not adds a label to the pull request to signal it's an external contribut
   ...  
 ```
 
-## Checks if user belongs to a given team
+### Checks if user belongs to a given team
 
 Checks if the user who triggered the worfklow (actor) doesn't belong to the `octocats` team
 
@@ -57,6 +63,6 @@ Checks if the user who triggered the worfklow (actor) doesn't belong to the `oct
   ...  
 ```
 
-# License
+## License
 
 The scripts and documentation in this project are released under the [MIT License](LICENSE)
