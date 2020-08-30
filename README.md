@@ -6,7 +6,7 @@ It can also be optionally used to check if the user belongs to a given team
 It emits two outputs which are available via the `steps` [output context](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#steps-context)
 
 * Array with the least of teams the user belongs (since it's array you can check if a user belongs to a team using [contains](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#contains) function)
-* A boolean indicating if a user belongs to a given team.
+* A boolean indicating if a user belongs to a given team (always false if `team` parameter is not used)
 
 # Usage
 
@@ -16,8 +16,10 @@ See [action.yml](action.yml)
 - uses: tspascoal/get-user-teams-membership@v1
   with:
     username: # The github username for which we want to fetch teams membership in a given organization.
-    organization: # optional. Default value ${{ github.repository_owner }} Organization to get membership from.
-    team: # optional. Check if user belong to this team. If you just want to check membership of a particular team. (only team name, don't include orgname)
+    organization: # optional. Default value ${{ github.repository_owner }} 
+                  # Organization to get membership from.
+    team: # optional. Check if user belong to this team. 
+          # If you just want to check membership of a particular team. (only team name, don't include orgname)
     GITHUB_TOKEN: # Personal access token used to query github (Requires scope: `read:org`)
 ```
 
